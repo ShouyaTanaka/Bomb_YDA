@@ -5,6 +5,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using UnityEngine;
+using UniTLib.Debug;
 
 namespace BoothNetwork
 {
@@ -61,16 +62,17 @@ namespace BoothNetwork
             try
             {
                 webSocket = new ClientWebSocket();
-                Debug.Log($"[BoothNetwork] 接続開始: {url}");
+                
+                UTLog.Log($"[BoothNetwork] 接続開始: {url}");
                 await webSocket.ConnectAsync(new Uri(url), cts.Token);
-                Debug.Log("[BoothNetwork] サーバーに接続しました");
+                UTLog.Log($"サーバーに接続しました: {url}").Tag("BoothNetwork");
 
                 OnConnected?.Invoke();
                 ReceiveLoopAsync(cts.Token).Forget();
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[BoothNetwork] 接続エラー: {ex.Message}");
+                UTLog.Error($"接続エラー: {ex.Message}").Tag("BoothNetwork");
             }
         }
 
@@ -107,7 +109,7 @@ namespace BoothNetwork
             catch (OperationCanceledException) { }
             catch (Exception ex)
             {
-                Debug.LogError($"[BoothNetwork] 受信ループ例外: {ex.Message}");
+                UTLog.Error($"[BoothNetwork] 受信ループ例外: {ex.Message}").Tag("BoothNetwork");
             }
             finally
             {
@@ -119,7 +121,8 @@ namespace BoothNetwork
         {
 
             // 受信した生JSONをコンソールに出力
-            Debug.Log($"<color=#00ffff>[BoothNetwork 受信]</color> {json}");
+            UTLog.Log($"<color=#00ffff>[BoothNetwork 受信]</color> {json}").Tag("BoothNetwork");
+            //Debug.Log($"<color=#00ffff>[BoothNetwork 受信]</color> {json}");
 
             ReceiveHeader header = JsonUtility.FromJson<ReceiveHeader>(json);
             if (header == null) return;
@@ -225,11 +228,16 @@ namespace BoothNetwork
         {
             if (instance == null || instance.webSocket == null || instance.webSocket.State != WebSocketState.Open)
             {
-                Debug.LogWarning("[BoothNetwork] 未接続のため送信できませんでした。");
+                UTLog.Warning("未接続のため送信できませんでした。").Tag("BoothNetwork");
                 return;
             }
 
             string json = JsonUtility.ToJson(payload);
+
+            // 送信JSONをコンソールへログ出力
+            UTLog.Log($"<color=#ffff00>[BoothNetwork 送信]</color> {json}").Tag("BoothNetwork");
+            //Debug.Log($"<color=#ffff00>[BoothNetwork 送信]</color> {json}");
+
             byte[] bytes = Encoding.UTF8.GetBytes(json);
             instance.webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, CancellationToken.None).AsUniTask().Forget();
         }
