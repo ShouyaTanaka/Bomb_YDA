@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Story02
+  m_EditorClassIdentifier: Assembly-CSharp::SectionData
+  state: 30
+  texts:
+  - Name: Story02_0
+    Content: "\u3053\u306E\u6587\u7AE0\u306F\u30C6\u30B9\u30C8\u3067\u3059"
+  - Name: Story02_1
+    Content: "\u3053\u306E\u6587\u7AE0\u306F\u30C6\u30B9\u30C8\u3067\u3059"
+  - Name: Story02_2
+    Content: "\u3053\u306E\u6587\u7AE0\u306F\u30C6\u30B9\u30C8\u3067\u3059"
