@@ -10,9 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: Story02
+  m_Name: story04
   m_EditorClassIdentifier: Assembly-CSharp::SectionData
-  state: 10
-  texts:
-  - Name: Story02_0
-    Content: "\u3044\u3064\u3082\u901A\u308A\u6559\u5BA4\u3078\u5411\u304B\u3046\u3068\u3001\u3044\u3064\u3082\u306A\u3089\u7B11\u3044\u58F0\u306E\u7D76\u3048\u306A\u3044\u6559\u5BA4\u304C\u3001\u7570\u69D8\u306A\u9759\u3051\u3055\u306B\u5305\u307E\u308C\u3066\u3044\u305F\u3002"
+  state: 0
+  texts: []
