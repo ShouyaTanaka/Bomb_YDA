@@ -12,6 +12,5 @@ public class SectionText
 [CreateAssetMenu(fileName = "ScenarioData", menuName = "Novel/Scenario Data")]
 public class SectionData : ScriptableObject
 {
-    public GameState state;
     public SectionText[] texts;
 }

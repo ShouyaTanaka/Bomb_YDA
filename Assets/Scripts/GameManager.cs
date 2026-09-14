@@ -3,6 +3,26 @@ using UniRx;
 using UniTLib.Debug;
 using UnityEngine;
 
+
+// ゲームのながれ //
+
+// -- 起動 -- //
+// -- 導入テキストの表示 -- //
+// -- 爆弾を強調表示 -- //
+// -- 一回目の電話 -- //
+// -- 自由操作に移行 -- //
+
+// -- 主にイベント処理で3つの正しい配線を切るためのギミックをやる -- //
+// -- １・花をすべて咲かせて後ろから光らせた色で示唆 -- //
+// -- ２・時計を合わせさせて正しい時間が出たら時間割の色で示唆 -- //
+// -- ３・テレビを押したら中央表示にしてリズムゲームをさせる 成功したら画面を光らせる色で示唆 -- //
+
+// -- 正しい線を切らせる ＞ 成功=続行 失敗=バッドエンド -- //
+// -- 二回目の電話 -- //
+// -- 二分の一で切らせる ＞ 成功=クリア 失敗=バッドエンド -- //
+// -- 終了 -- //
+
+
 public class GameManager : MonoBehaviour
 {
     private ReactiveProperty<GameState> mainState = new ReactiveProperty<GameState>(GameState.Start);
@@ -10,10 +30,12 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     public SectionData Story01_Data;
+    public SectionData Story02_Data;
+    public SectionData Story03_Data;
     public SectionData Act01_a_Data;
     public SectionData Act01_b_Data;
     public SectionData Act01_c_Data;
-    public SectionData Story02_Data;
+    public SectionData Story04_Data;
     public SectionData Act02_a_Data;
     public SectionData Act02_b_Data;
     public SectionData Act02_c_Data;
@@ -74,35 +96,44 @@ public class GameManager : MonoBehaviour
 
     private async UniTask OnStart()
     {
+        // -- 起動 -- //
         UTLog.Log("Start state").Tag("GameManager");
         TextManager.Instance.StartProject();
-        GimmickManager.Instance.StartProject();
+        GimmickObjManager.Instance.StartProject();
         await FadeManager.Instance.StartProject();
         SetGameState(GameState.Story01);
     }
 
     private async UniTask OnStory01()
     {
+        // -- 導入テキストの表示 -- //
         UTLog.Log("Story01 state").Tag("GameManager");
         await TextManager.Instance.ShowText(Story01_Data);
         await SwitchBackGround.Instance.SwitchBack(BackImage.Naka);
+        await TextManager.Instance.ShowText(Story02_Data);
+        // -- 爆弾を強調表示 -- //
+        await SwitchBackGround.Instance.SwitchBack(BackImage.Bomb);
+        await TextManager.Instance.ShowText(Story03_Data);
+        // -- 一回目の電話 -- //
         SetGameState(GameState.Act01);
     }
 
     private async UniTask OnAct01()
     {
         UTLog.Log("Act01 state").Tag("GameManager");
-        await TextManager.Instance.ShowText(Act01_a_Data);
-        await SwitchBackGround.Instance.SwitchBack(BackImage.Hako);
-        await TextManager.Instance.ShowText(Act01_a_Data);
-        await SwitchBackGround.Instance.SwitchBack(BackImage.Bomb);
-        await TextManager.Instance.ShowText(Act01_a_Data);
-        await SwitchBackGround.Instance.SwitchBack(BackImage.Naka);
-        await TextManager.Instance.ShowText(Act01_a_Data);
         UTLog.Log("Act01 ギミック 開始").Tag("Act01");
+        // -- 主にイベント処理で3つの正しい配線を切るためのギミックをやる -- //
+        // -- １・花をすべて咲かせて後ろから光らせた色で示唆 -- //
+        // -- ２・時計を合わせさせて正しい時間が出たら時間割の色で示唆 -- //
+        // -- ３・テレビを押したら中央表示にしてリズムゲームをさせる 成功したら画面を光らせる色で示唆 -- //
+        await SwitchBackGround.Instance.SwitchBack(BackImage.Naka);
 
-        await GimmickManager.Instance.Gimmick01Active();
-        GimmickManager.Instance.GimmickHide(SectionID.Act_01);
+        GimmickObjManager.Instance.ObjActive();
+
+        await UniTask.WaitUntil(() => GimmickObjManager.Instance.testBool);
+        GimmickObjManager.Instance.testBool = false;
+
+        GimmickObjManager.Instance.ObjHide();
 
         if (act1_trigger)
         {
@@ -140,23 +171,6 @@ public class GameManager : MonoBehaviour
         await TextManager.Instance.ShowText(Act02_a_Data);
         UTLog.Log("Act02 ギミック ").Tag("Act02");
 
-        // -- ここにギミック２の処理を入れ込む -- //
-        // => 結果はフラグで返却
-
-        HintManager.Instance.HintActive(SectionID.Act_02);
-
-        // await UniTask.WaitUntil(() =>
-        // {
-        //  実機の操作を取得し、既定の操作がされたら進める
-        // });
-
-        await UniTask.WaitUntil(() => HintManager.Instance.testbool);
-
-        HintManager.Instance.testbool = false;
-
-
-        HintManager.Instance.HintHide(SectionID.Act_02);
-
         if (act1_trigger)
         {
             // -- 成功 -- //
@@ -189,6 +203,7 @@ public class GameManager : MonoBehaviour
 
     public async UniTask GameReset()
     {
+        await SwitchBackGround.Instance.SwitchBack(BackImage.Soto);
         mainState.Value = GameState.Start;
     }
 

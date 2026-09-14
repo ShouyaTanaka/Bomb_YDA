@@ -1,9 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HintObject : MonoBehaviour
+public class GimmickObject : MonoBehaviour
 {
-    [SerializeField] SectionID section;
     [SerializeField] HintID gimmick;
     [SerializeField] SectionData data;
 
@@ -13,9 +12,11 @@ public class HintObject : MonoBehaviour
     public void Start()
     {
         Button button = GetComponent<Button>();
-        HintManager hm = HintManager.Instance;
+        GimmickObjManager hm = GimmickObjManager.Instance;
+        RectTransform rtf = GetComponent<RectTransform>();
+        if (button == null) return;
         // 押されたオブジェクトはisClick = true
-        button.onClick.AddListener(async () => { isClick = true; hm.ObjRoute(section, gimmick, data, transform); });
+        button.onClick.AddListener(async () => { isClick = true; hm.ObjRoute(gimmick, data, rtf); });
     }
 
     public void StartProject()
