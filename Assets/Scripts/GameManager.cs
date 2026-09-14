@@ -1,4 +1,6 @@
+using BoothNetwork;
 using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
 using UniRx;
 using UniTLib.Debug;
 using UnityEngine;
@@ -43,12 +45,20 @@ public class GameManager : MonoBehaviour
     public SectionData BadEnd01_Data;
     public SectionData BadEnd02_Data;
 
+    enum WireColor { Red, Blue, Green, Yellow, Purple }
+
 
     // Test
     public bool act1_trigger = true;
     public bool act2_trigger = true;
 
+    // 最終判定はマイコンからのイベントで決める
+    private bool act2FinalResult = false;
+    private bool isAct2ResultReceived = false;
 
+    // 正解導線番号。ここを切ると進行する。
+    private readonly HashSet<int> correctWireNumbers = new HashSet<int> { 1, 2, 3 };
+    private int correctWireCutCount = 0;
 
     void Awake()
     {
@@ -61,6 +71,63 @@ public class GameManager : MonoBehaviour
     {
         // GameStateの監視
         mainState.Subscribe(state => OnGameStateChanged(state)).AddTo(this);
+        BoothNetworkService.OnWireCut += HandleWireCut;
+        BoothNetworkService.OnBombClear += HandleBombClear;
+        BoothNetworkService.OnBombMiss += HandleBombMiss;
+    }
+
+    private void OnDestroy()
+    {
+        BoothNetworkService.OnWireCut -= HandleWireCut;
+        BoothNetworkService.OnBombClear -= HandleBombClear;
+        BoothNetworkService.OnBombMiss -= HandleBombMiss;
+    }
+
+    private void HandleBombClear()
+    {
+        isAct2ResultReceived = true;
+        act2FinalResult = true;
+        UTLog.Log("[Bomb] Final result: Clear").Tag("GameManager");
+    }
+
+    private void HandleBombMiss()
+    {
+        isAct2ResultReceived = true;
+        act2FinalResult = false;
+        UTLog.Log("[Bomb] Final result: Miss").Tag("GameManager");
+    }
+
+    private void HandleWireCut(int no)
+    {
+        if (mainState.Value != GameState.Act01 && mainState.Value != GameState.Act02)
+        {
+            UTLog.Log($"[Wire] wire cut while inactive: {no}").Tag("GameManager");
+            return;
+        }
+
+        if (!correctWireNumbers.Contains(no))
+        {
+            switch (mainState.Value)
+            {
+                case GameState.Act01:
+                    UTLog.Log($"[Wire] invalid wire cut: {no}. -> BadEnd01").Tag("GameManager");
+                    SetGameState(GameState.BadEnd01);
+                    break;
+                case GameState.Act02:
+                    UTLog.Log($"[Wire] invalid wire cut: {no}. -> BadEnd02").Tag("GameManager");
+                    SetGameState(GameState.BadEnd02);
+                    break;
+            }
+            return;
+        }
+
+        correctWireCutCount++;
+        UTLog.Log($"[Wire] correct wire cut: {no}, count={correctWireCutCount}").Tag("GameManager");
+    }
+
+    private void ResetWireProgress()
+    {
+        correctWireCutCount = 0;
     }
 
     private async void OnGameStateChanged(GameState state)
@@ -130,27 +197,18 @@ public class GameManager : MonoBehaviour
 
         GimmickObjManager.Instance.ObjActive();
 
-        await UniTask.WaitUntil(() => GimmickObjManager.Instance.testBool);
-        GimmickObjManager.Instance.testBool = false;
+        ResetWireProgress();
+        await UniTask.WaitUntil(() => correctWireCutCount >= 3 && mainState.Value != GameState.BadEnd01 && mainState.Value != GameState.BadEnd02);
+        correctWireCutCount = 0;
 
         GimmickObjManager.Instance.ObjHide();
 
         // await UniTask.WaitUntil(()=>net.Instance.___);
 
-        if (act1_trigger)
-        {
-            // -- 成功 -- //
-            UTLog.Log("Act01 ギミック 成功分岐").Tag("Act01");
-            await TextManager.Instance.ShowText(Act01_b_Data);
-            SetGameState(GameState.Story02);
-        }
-        else
-        {
-            // -- 失敗 -- //
-            UTLog.Log("Act01 ギミック 失敗分岐").Tag("Act01");
-            await TextManager.Instance.ShowText(Act01_c_Data);
-            SetGameState(GameState.BadEnd01);
-        }
+        // -- 成功 -- //
+        UTLog.Log("Act01 ギミック 成功分岐").Tag("Act01");
+        await TextManager.Instance.ShowText(Act01_b_Data);
+        SetGameState(GameState.Story02);
     }
 
     private async UniTask OnBadEnd01()
@@ -173,16 +231,19 @@ public class GameManager : MonoBehaviour
         await TextManager.Instance.ShowText(Act02_a_Data);
         UTLog.Log("Act02 ギミック ").Tag("Act02");
 
-        if (act1_trigger)
+        // 最終判定はマイコン側から送られてくる BombClear / BombMiss によって決める
+        isAct2ResultReceived = false;
+        act2FinalResult = false;
+        await UniTask.WaitUntil(() => isAct2ResultReceived);
+
+        if (act2FinalResult)
         {
-            // -- 成功 -- //
             UTLog.Log("Act02 ギミック 成功分岐").Tag("Act02");
             await TextManager.Instance.ShowText(Act02_b_Data);
             SetGameState(GameState.GoodEnd);
         }
         else
         {
-            // -- 失敗 -- //
             UTLog.Log("Act02 ギミック 失敗分岐").Tag("Act02");
             await TextManager.Instance.ShowText(Act02_c_Data);
             SetGameState(GameState.BadEnd02);
