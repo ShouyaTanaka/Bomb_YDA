@@ -18,22 +18,22 @@ namespace BoothNetwork
         private CancellationTokenSource cts;
 
         // ==========================================
-        // ƒƒCƒ“‘¤iƒQ[ƒ€–{‘Ìj‚ªó‚¯æ‚éóMƒCƒxƒ“ƒg
+        // ï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½iï¿½Qï¿½[ï¿½ï¿½ï¿½{ï¿½Ìjï¿½ï¿½ï¿½ó‚¯ï¿½ï¿½ï¿½Mï¿½Cï¿½xï¿½ï¿½ï¿½g
         // ==========================================
         public static event Action OnConnected;
         public static event Action OnDisconnected;
 
-        // •“d˜b
+        // ï¿½ï¿½ï¿½dï¿½b
         public static event Action OnPickUpPhone;
         public static event Action OnHangUpPhone;
 
-        // ”š’eŠeƒMƒ~ƒbƒN
+        // ï¿½ï¿½ï¿½eï¿½eï¿½Mï¿½~ï¿½bï¿½N
         public static event Action<string, string> OnClockRotated;          // hour, minutes
         public static event Action<int, bool> OnToggleSwitchChanged;        // no (1-4), isOn
         public static event Action<int, bool> OnPushButtonChanged;          // no (1-3), isPressed
         public static event Action<int> OnWireCut;                          // no (1-5)
 
-        // ƒfƒoƒCƒX‘¤©—¥”»’è
+        // ï¿½fï¿½oï¿½Cï¿½Xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         public static event Action OnBombClear;
         public static event Action OnBombMiss;
 
@@ -62,17 +62,17 @@ namespace BoothNetwork
             try
             {
                 webSocket = new ClientWebSocket();
-                
-                UTLog.Log($"[BoothNetwork] Ú‘±ŠJn: {url}");
+
+                UTLog.Log($"[BoothNetwork] ï¿½Ú‘ï¿½ï¿½Jï¿½n: {url}");
                 await webSocket.ConnectAsync(new Uri(url), cts.Token);
-                UTLog.Log($"ƒT[ƒo[‚ÉÚ‘±‚µ‚Ü‚µ‚½: {url}").Tag("BoothNetwork");
+                UTLog.Log($"ï¿½Tï¿½[ï¿½oï¿½[ï¿½ÉÚ‘ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½: {url}").Tag("BoothNetwork");
 
                 OnConnected?.Invoke();
                 ReceiveLoopAsync(cts.Token).Forget();
             }
             catch (Exception ex)
             {
-                UTLog.Error($"Ú‘±ƒGƒ‰[: {ex.Message}").Tag("BoothNetwork");
+                UTLog.Error($"ï¿½Ú‘ï¿½ï¿½Gï¿½ï¿½ï¿½[: {ex.Message}").Tag("BoothNetwork");
             }
         }
 
@@ -100,7 +100,7 @@ namespace BoothNetwork
                         }
 
                         string json = Encoding.UTF8.GetString(ms.ToArray());
-                        // ƒƒCƒ“ƒXƒŒƒbƒh‚Åƒp[ƒX & ƒCƒxƒ“ƒg”­‰Î
+                        // ï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½bï¿½hï¿½Åƒpï¿½[ï¿½X & ï¿½Cï¿½xï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½
                         await UniTask.SwitchToMainThread();
                         DispatchMessage(json);
                     }
@@ -109,7 +109,7 @@ namespace BoothNetwork
             catch (OperationCanceledException) { }
             catch (Exception ex)
             {
-                UTLog.Error($"[BoothNetwork] óMƒ‹[ƒv—áŠO: {ex.Message}").Tag("BoothNetwork");
+                UTLog.Error($"[BoothNetwork] ï¿½ï¿½Mï¿½ï¿½ï¿½[ï¿½vï¿½ï¿½O: {ex.Message}").Tag("BoothNetwork");
             }
             finally
             {
@@ -120,14 +120,26 @@ namespace BoothNetwork
         private void DispatchMessage(string json)
         {
 
-            // óM‚µ‚½¶JSON‚ğƒRƒ“ƒ\[ƒ‹‚Éo—Í
-            UTLog.Log($"<color=#00ffff>[BoothNetwork óM]</color> {json}").Tag("BoothNetwork");
-            //Debug.Log($"<color=#00ffff>[BoothNetwork óM]</color> {json}");
+            // ï¿½ï¿½Mï¿½ï¿½ï¿½ï¿½ï¿½ï¿½JSONï¿½ï¿½ï¿½Rï¿½ï¿½ï¿½\ï¿½[ï¿½ï¿½ï¿½Éoï¿½ï¿½
+            UTLog.Log($"<color=#00ffff>[BoothNetwork ï¿½ï¿½M]</color> {json}").Tag("BoothNetwork");
+            //Debug.Log($"<color=#00ffff>[BoothNetwork ï¿½ï¿½M]</color> {json}");
 
             ReceiveHeader header = JsonUtility.FromJson<ReceiveHeader>(json);
             if (header == null) return;
 
-            // 1. ƒfƒoƒCƒX’¼Œ`®: toggleSwitch
+            // ãƒˆã‚°ãƒ«ã‚¹ã‚¤ãƒƒãƒ (device="Game", command="SwitchOperation")
+            if (header.command == "SwitchOperation")
+            {
+                var msg = JsonUtility.FromJson<SwitchOperationMessage>(json);
+                if (msg?.parameter != null)
+                {
+                    bool isOn = msg.parameter.type == "on";
+                    OnToggleSwitchChanged?.Invoke(msg.parameter.no, isOn);
+                }
+                return;
+            }
+
+            // æ—¢å­˜ä»•æ§˜ (device="toggleSwitch", parameter.status)
             if (header.device == "toggleSwitch")
             {
                 var msg = JsonUtility.FromJson<ToggleSwitchMessage>(json);
@@ -139,7 +151,7 @@ namespace BoothNetwork
                 return;
             }
 
-            // 2. ƒfƒoƒCƒX’¼Œ`®: pushButton
+            // 2. ï¿½fï¿½oï¿½Cï¿½Xï¿½ï¿½ï¿½`ï¿½ï¿½: pushButton
             if (header.device == "pushButton")
             {
                 var msg = JsonUtility.FromJson<PushButtonMessage>(json);
@@ -151,7 +163,7 @@ namespace BoothNetwork
                 return;
             }
 
-            // 3. ’ÊíƒRƒ}ƒ“ƒhŒ`® (command ”»’è)
+            // 3. ï¿½Êï¿½Rï¿½}ï¿½ï¿½ï¿½hï¿½`ï¿½ï¿½ (command ï¿½ï¿½ï¿½ï¿½)
             switch (header.command)
             {
                 case "PickUpPhone":
@@ -184,7 +196,7 @@ namespace BoothNetwork
         }
 
         // ==========================================
-        // ƒƒCƒ“‘¤iƒQ[ƒ€–{‘Ìj‚©‚çŒÄ‚Ño‚·‘—Mƒƒ\ƒbƒhŒQ
+        // ï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½iï¿½Qï¿½[ï¿½ï¿½ï¿½{ï¿½Ìjï¿½ï¿½ï¿½ï¿½Ä‚Ñoï¿½ï¿½ï¿½ï¿½ï¿½Mï¿½ï¿½ï¿½\ï¿½bï¿½hï¿½Q
         // ==========================================
 
         public static void SendStart()
@@ -228,15 +240,15 @@ namespace BoothNetwork
         {
             if (instance == null || instance.webSocket == null || instance.webSocket.State != WebSocketState.Open)
             {
-                UTLog.Warning("–¢Ú‘±‚Ì‚½‚ß‘—M‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B").Tag("BoothNetwork");
+                UTLog.Warning("ï¿½ï¿½ï¿½Ú‘ï¿½ï¿½Ì‚ï¿½ï¿½ß‘ï¿½ï¿½Mï¿½Å‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½ï¿½B").Tag("BoothNetwork");
                 return;
             }
 
             string json = JsonUtility.ToJson(payload);
 
-            // ‘—MJSON‚ğƒRƒ“ƒ\[ƒ‹‚ÖƒƒOo—Í
-            UTLog.Log($"<color=#ffff00>[BoothNetwork ‘—M]</color> {json}").Tag("BoothNetwork");
-            //Debug.Log($"<color=#ffff00>[BoothNetwork ‘—M]</color> {json}");
+            // ï¿½ï¿½ï¿½MJSONï¿½ï¿½ï¿½Rï¿½ï¿½ï¿½\ï¿½[ï¿½ï¿½ï¿½Öƒï¿½ï¿½Oï¿½oï¿½ï¿½
+            UTLog.Log($"<color=#ffff00>[BoothNetwork ï¿½ï¿½ï¿½M]</color> {json}").Tag("BoothNetwork");
+            //Debug.Log($"<color=#ffff00>[BoothNetwork ï¿½ï¿½ï¿½M]</color> {json}");
 
             byte[] bytes = Encoding.UTF8.GetBytes(json);
             instance.webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, CancellationToken.None).AsUniTask().Forget();

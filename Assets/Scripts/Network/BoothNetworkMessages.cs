@@ -113,6 +113,24 @@ namespace BoothNetwork
     }
 
     /// <summary>
+    /// トグルスイッチ操作 (device="Game", command="SwitchOperation")
+    /// </summary>
+    [Serializable]
+    public class SwitchOperationParam
+    {
+        public string type;
+        public int no;
+    }
+
+    [Serializable]
+    public class SwitchOperationMessage
+    {
+        public string device;
+        public string command;
+        public SwitchOperationParam parameter;
+    }
+
+    /// <summary>
     /// プッシュボタン (相手仕様: device="pushButton", status="press"|"release")
     /// </summary>
     [Serializable]

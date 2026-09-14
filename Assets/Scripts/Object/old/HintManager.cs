@@ -125,11 +125,7 @@ public class HintManager : MonoBehaviour
     }
 }
 
-public enum SectionID
-{
-    Act_01,
-    Act_02
-}
+
 public enum HintID
 {
     Obj_01,

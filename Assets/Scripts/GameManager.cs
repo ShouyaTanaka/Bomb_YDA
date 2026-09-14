@@ -76,7 +76,7 @@ public class GameManager : MonoBehaviour
     {
         UTLog.Log("Start state").Tag("GameManager");
         TextManager.Instance.StartProject();
-        HintManager.Instance.StartProject();
+        GimmickManager.Instance.StartProject();
         await FadeManager.Instance.StartProject();
         SetGameState(GameState.Story01);
     }
@@ -101,22 +101,8 @@ public class GameManager : MonoBehaviour
         await TextManager.Instance.ShowText(Act01_a_Data);
         UTLog.Log("Act01 ギミック 開始").Tag("Act01");
 
-        // -- ここにギミック１の処理を入れ込む -- //
-        // => 結果はフラグで返却
-
-        HintManager.Instance.HintActive(SectionID.Act_01);
-
-
-        // await UniTask.WaitUntil(() =>
-        // {
-        //  実機の操作を取得し、既定の操作がされたら進める
-        // });
-
-        await UniTask.WaitUntil(() => HintManager.Instance.testbool);
-        HintManager.Instance.testbool = false;
-
-
-        HintManager.Instance.HintHide(SectionID.Act_01);
+        await GimmickManager.Instance.Gimmick01Active();
+        GimmickManager.Instance.GimmickHide(SectionID.Act_01);
 
         if (act1_trigger)
         {
