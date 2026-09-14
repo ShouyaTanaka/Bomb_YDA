@@ -55,6 +55,8 @@ public class GameManager : MonoBehaviour
     // 最終判定はマイコンからのイベントで決める
     private bool act2FinalResult = false;
     private bool isAct2ResultReceived = false;
+    private bool isPhonePickedUp = false;
+    private bool isPhoneHungUp = false;
 
     // 正解導線番号。ここを切ると進行する。
     private readonly HashSet<int> correctWireNumbers = new HashSet<int> { 1, 2, 3 };
@@ -74,6 +76,8 @@ public class GameManager : MonoBehaviour
         BoothNetworkService.OnWireCut += HandleWireCut;
         BoothNetworkService.OnBombClear += HandleBombClear;
         BoothNetworkService.OnBombMiss += HandleBombMiss;
+        BoothNetworkService.OnPickUpPhone += HandlePickUpPhone;
+        BoothNetworkService.OnHangUpPhone += HandleHangUpPhone;
     }
 
     private void OnDestroy()
@@ -81,6 +85,29 @@ public class GameManager : MonoBehaviour
         BoothNetworkService.OnWireCut -= HandleWireCut;
         BoothNetworkService.OnBombClear -= HandleBombClear;
         BoothNetworkService.OnBombMiss -= HandleBombMiss;
+        BoothNetworkService.OnPickUpPhone -= HandlePickUpPhone;
+        BoothNetworkService.OnHangUpPhone -= HandleHangUpPhone;
+    }
+
+    private void HandlePickUpPhone()
+    {
+        isPhonePickedUp = true;
+    }
+
+    private void HandleHangUpPhone()
+    {
+        isPhoneHungUp = true;
+    }
+
+    private async UniTask WaitForPhonePickup(int messageNo)
+    {
+        isPhonePickedUp = false;
+        BoothNetworkService.SendRingTheBell();
+        await UniTask.WaitUntil(() => isPhonePickedUp);
+
+        isPhoneHungUp = false;
+        BoothNetworkService.SendTalkMessage(messageNo);
+        await UniTask.WaitUntil(() => isPhoneHungUp);
     }
 
     private void HandleBombClear()
@@ -182,6 +209,7 @@ public class GameManager : MonoBehaviour
         await SwitchBackGround.Instance.SwitchBack(BackImage.Bomb);
         await TextManager.Instance.ShowText(Story03_Data);
         // -- 一回目の電話 -- //
+        await WaitForPhonePickup(1);
         SetGameState(GameState.Act01);
     }
 
@@ -222,6 +250,8 @@ public class GameManager : MonoBehaviour
     {
         UTLog.Log("Story02 state").Tag("GameManager");
         await TextManager.Instance.ShowText(Story02_Data);
+        // -- 二回目の電話 -- //
+        await WaitForPhonePickup(2);
         SetGameState(GameState.Act02);
     }
 
