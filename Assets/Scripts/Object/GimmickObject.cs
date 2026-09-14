@@ -4,7 +4,8 @@ using UnityEngine.UI;
 public class GimmickObject : MonoBehaviour
 {
     [SerializeField] HintID gimmick;
-    [SerializeField] SectionData data;
+    public SectionData data;
+    [SerializeField] GameObject GimmickPanel;
 
     public bool isClick = false;
     bool isActive = false;
@@ -44,5 +45,15 @@ public class GimmickObject : MonoBehaviour
         gameObject.SetActive(false);
 
         isActive = false;
+    }
+
+    public void GimmickOn()
+    {
+        if (GimmickPanel != null) GimmickPanel.SetActive(true);
+    }
+
+    public void GimmickOff()
+    {
+        if (GimmickPanel != null) GimmickPanel.SetActive(false);
     }
 }

@@ -135,6 +135,8 @@ public class GameManager : MonoBehaviour
 
         GimmickObjManager.Instance.ObjHide();
 
+        // await UniTask.WaitUntil(()=>net.Instance.___);
+
         if (act1_trigger)
         {
             // -- 成功 -- //

@@ -139,6 +139,18 @@ namespace BoothNetwork
                 return;
             }
 
+            // ボタン操作 (device="Game", command="ButtonOperation")
+            if (header.command == "ButtonOperation")
+            {
+                var msg = JsonUtility.FromJson<SwitchOperationMessage>(json);
+                if (msg?.parameter != null)
+                {
+                    bool isPressed = msg.parameter.type == "press";
+                    OnPushButtonChanged?.Invoke(msg.parameter.no, isPressed);
+                }
+                return;
+            }
+
             // 既存仕様 (device="toggleSwitch", parameter.status)
             if (header.device == "toggleSwitch")
             {

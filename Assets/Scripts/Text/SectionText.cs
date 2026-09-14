@@ -9,7 +9,7 @@ public class SectionText
     public string Content;
 }
 
-[CreateAssetMenu(fileName = "ScenarioData", menuName = "Novel/Scenario Data")]
+[CreateAssetMenu(fileName = "ScenarioData", menuName = "Novel/Scenarios Data")]
 public class SectionData : ScriptableObject
 {
     public SectionText[] texts;
