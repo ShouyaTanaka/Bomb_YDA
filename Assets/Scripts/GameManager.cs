@@ -209,7 +209,12 @@ public class GameManager : MonoBehaviour
         await SwitchBackGround.Instance.SwitchBack(BackImage.Bomb);
         await TextManager.Instance.ShowText(Story03_Data);
         // -- 一回目の電話 -- //
+        
+        // Todo: ここに電話中の背景いれて
         await WaitForPhonePickup(1);
+
+        await SwitchBackGround.Instance.SwitchBack(BackImage.Bomb);
+        await TextManager.Instance.ShowText(Story04_Data);
         SetGameState(GameState.Act01);
     }
 
