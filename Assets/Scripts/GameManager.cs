@@ -34,13 +34,9 @@ public class GameManager : MonoBehaviour
     public SectionData Story01_Data;
     public SectionData Story02_Data;
     public SectionData Story03_Data;
-    public SectionData Act01_a_Data;
-    public SectionData Act01_b_Data;
-    public SectionData Act01_c_Data;
     public SectionData Story04_Data;
-    public SectionData Act02_a_Data;
-    public SectionData Act02_b_Data;
-    public SectionData Act02_c_Data;
+    public SectionData Story06_Data;
+    public SectionData Story07_Data;
     public SectionData GoodEnd_Data;
     public SectionData BadEnd01_Data;
     public SectionData BadEnd02_Data;
@@ -209,8 +205,7 @@ public class GameManager : MonoBehaviour
         await SwitchBackGround.Instance.SwitchBack(BackImage.Bomb);
         await TextManager.Instance.ShowText(Story03_Data);
         // -- 一回目の電話 -- //
-        
-        // Todo: ここに電話中の背景いれて
+        await SwitchBackGround.Instance.SwitchBack(BackImage.Phone);
         await WaitForPhonePickup(1);
 
         await SwitchBackGround.Instance.SwitchBack(BackImage.Bomb);
@@ -236,25 +231,15 @@ public class GameManager : MonoBehaviour
 
         GimmickObjManager.Instance.ObjHide();
 
-        // await UniTask.WaitUntil(()=>net.Instance.___);
-
         // -- 成功 -- //
         UTLog.Log("Act01 ギミック 成功分岐").Tag("Act01");
-        await TextManager.Instance.ShowText(Act01_b_Data);
+        await TextManager.Instance.ShowText(Story06_Data);
         SetGameState(GameState.Story02);
-    }
-
-    private async UniTask OnBadEnd01()
-    {
-        UTLog.Log("BadEnd01 state").Tag("GameManager");
-        await TextManager.Instance.ShowText(BadEnd01_Data);
-        await GameReset();
     }
 
     private async UniTask OnStory02()
     {
         UTLog.Log("Story02 state").Tag("GameManager");
-        await TextManager.Instance.ShowText(Story02_Data);
         // -- 二回目の電話 -- //
         await WaitForPhonePickup(2);
         SetGameState(GameState.Act02);
@@ -263,7 +248,7 @@ public class GameManager : MonoBehaviour
     private async UniTask OnAct02()
     {
         UTLog.Log("Act02 state").Tag("GameManager");
-        await TextManager.Instance.ShowText(Act02_a_Data);
+        await TextManager.Instance.ShowText(Story07_Data);
         UTLog.Log("Act02 ギミック ").Tag("Act02");
 
         // 最終判定はマイコン側から送られてくる BombClear / BombMiss によって決める
@@ -274,13 +259,11 @@ public class GameManager : MonoBehaviour
         if (act2FinalResult)
         {
             UTLog.Log("Act02 ギミック 成功分岐").Tag("Act02");
-            await TextManager.Instance.ShowText(Act02_b_Data);
             SetGameState(GameState.GoodEnd);
         }
         else
         {
             UTLog.Log("Act02 ギミック 失敗分岐").Tag("Act02");
-            await TextManager.Instance.ShowText(Act02_c_Data);
             SetGameState(GameState.BadEnd02);
         }
     }
@@ -292,10 +275,19 @@ public class GameManager : MonoBehaviour
         await GameReset();
     }
 
+    private async UniTask OnBadEnd01()
+    {
+        UTLog.Log("BadEnd01 state").Tag("GameManager");
+        await TextManager.Instance.ShowText(BadEnd01_Data);
+        await WaitForPhonePickup(3);
+        await GameReset();
+    }
+
     private async UniTask OnBadEnd02()
     {
         UTLog.Log("BadEnd02 state").Tag("GameManager");
         await TextManager.Instance.ShowText(BadEnd02_Data);
+        await WaitForPhonePickup(4);
         await GameReset();
     }
 

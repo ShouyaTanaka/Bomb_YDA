@@ -33,6 +33,6 @@ public enum BackImage
 {
     Soto = 0,
     Naka = 1,
-    Hako = 2,
+    Phone = 2,
     Bomb = 3
 }

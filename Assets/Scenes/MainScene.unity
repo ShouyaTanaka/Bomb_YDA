@@ -401,7 +401,7 @@ MonoBehaviour:
   backs:
   - {fileID: 221190022833290341, guid: a4d2460db63e6fc47a3273f34df27d39, type: 3}
   - {fileID: -6258106413805453322, guid: d9e344b79a0a0fc49af12a9c213bedf5, type: 3}
-  - {fileID: 3842877815408154234, guid: b0eb823b4f3833647821f4531fcff47c, type: 3}
+  - {fileID: 4557156881807114408, guid: c4cfb7d0b88073d43b427b1780732412, type: 3}
   - {fileID: 7473752613737995265, guid: dfb3f7c5352202544a8d73a79b1d36b2, type: 3}
   image: {fileID: 255079901}
 --- !u!1 &334317966
@@ -1469,13 +1469,9 @@ MonoBehaviour:
   Story01_Data: {fileID: 11400000, guid: 4c90a586cd89ade4db7b96de41499cc5, type: 2}
   Story02_Data: {fileID: 11400000, guid: 4faf2d2525f16b04bb4eadc9883217e2, type: 2}
   Story03_Data: {fileID: 11400000, guid: c896e2da226f52c44b9c2a68300b9eef, type: 2}
-  Act01_a_Data: {fileID: 11400000, guid: 82cdf344bb1fc924684e579ac390d56b, type: 2}
-  Act01_b_Data: {fileID: 11400000, guid: 5b71ff7f4704d544daabfaab33494f0a, type: 2}
-  Act01_c_Data: {fileID: 11400000, guid: ae9c6f7ce2b41334cb64e11afa51595f, type: 2}
-  Story04_Data: {fileID: 0}
-  Act02_a_Data: {fileID: 11400000, guid: cb746a11a3b7e14459a87cff4ad06e04, type: 2}
-  Act02_b_Data: {fileID: 11400000, guid: cbe442b7b5536414e992638125af74bf, type: 2}
-  Act02_c_Data: {fileID: 11400000, guid: 95a1e201caf45194ea1b8c482cbb3fd0, type: 2}
+  Story04_Data: {fileID: 11400000, guid: d99a6439d517c75468dc848861cb5b7d, type: 2}
+  Story06_Data: {fileID: 11400000, guid: 57deda1d5bb304a40ac544aad96b8274, type: 2}
+  Story07_Data: {fileID: 0}
   GoodEnd_Data: {fileID: 11400000, guid: e254a792767b3b8408a4af2f28c72a11, type: 2}
   BadEnd01_Data: {fileID: 11400000, guid: edd437132729de94c99509f57803e6a5, type: 2}
   BadEnd02_Data: {fileID: 11400000, guid: 81f3c2434db1a0a48b6c6c81e0c4a75d, type: 2}
