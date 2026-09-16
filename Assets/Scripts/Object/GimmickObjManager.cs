@@ -23,6 +23,7 @@ public class GimmickObjManager : MonoBehaviour
     [Header("Clock")]
     public GameObject clockLong;
     public GameObject clockShote;
+    [SerializeField] private RectTransform clockCenter;
     [SerializeField] private float targetHour = 3f;
     [SerializeField] private float targetMinute = 15f;
     [SerializeField] private float clockTolerance = 5f;
@@ -79,6 +80,9 @@ public class GimmickObjManager : MonoBehaviour
         GameObject flower = flowers[index];
         if (flower == null) return;
 
+        SetFlowerChildrenActive(flower, false);
+        if (isOn) _ = ActivateFlowerChildrenAfterDelay(index, flower);
+
         Animator animator = flower.GetComponent<Animator>();
         if (animator == null) animator = flower.GetComponentInChildren<Animator>();
         if (animator != null)
@@ -87,6 +91,22 @@ public class GimmickObjManager : MonoBehaviour
         }
 
         isFlowerClear = IsAllFlowerOn();
+    }
+
+    private async UniTask ActivateFlowerChildrenAfterDelay(int flowerIndex, GameObject flower)
+    {
+        await UniTask.WaitForSeconds(1f);
+
+        if (flowerStates == null || flowerIndex >= flowerStates.Length || !flowerStates[flowerIndex]) return;
+        SetFlowerChildrenActive(flower, true);
+    }
+
+    private static void SetFlowerChildrenActive(GameObject flower, bool isActive)
+    {
+        for (int childIndex = 0; childIndex < flower.transform.childCount; childIndex++)
+        {
+            flower.transform.GetChild(childIndex).gameObject.SetActive(isActive);
+        }
     }
 
     private bool IsAllFlowerOn()
@@ -144,6 +164,17 @@ public class GimmickObjManager : MonoBehaviour
         hand.localRotation = Quaternion.Euler(0f, 0f, -angle);
     }
 
+    private void SetupClockHand(GameObject handObject)
+    {
+        if (handObject == null || clockCenter == null) return;
+
+        Transform hand = handObject.transform;
+        if (hand.parent != clockCenter)
+        {
+            hand.SetParent(clockCenter, true);
+        }
+    }
+
     public void StartProject()
     {
         ObjHide();
@@ -156,6 +187,9 @@ public class GimmickObjManager : MonoBehaviour
         isClockClear = false;
         currentHourAngle = GetHourAngle(targetHour);
         currentMinuteAngle = GetMinuteAngle(targetMinute);
+
+        SetupClockHand(clockLong);
+        SetupClockHand(clockShote);
 
         if (clockLong != null) ApplyClockHand(clockLong.transform, currentHourAngle);
         if (clockShote != null) ApplyClockHand(clockShote.transform, currentMinuteAngle);
