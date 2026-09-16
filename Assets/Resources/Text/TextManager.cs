@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using UniRx;
 using UniTLib.Debug;
 using UnityEngine;
@@ -47,10 +47,45 @@ public class TextManager : MonoBehaviour
 
     private async UniTask WaitClickAsync()
     {
-        await UniTask.WaitUntil(() =>
-            Mouse.current != null &&
-            Mouse.current.leftButton.wasPressedThisFrame
-        );
+        // 次フレームまで待機
+        await UniTask.Yield(PlayerLoopTiming.Update);
+
+        float idleTimer = 0f;
+        const float idleThreshold = 5f;
+        bool isGuidanceShown = false;
+
+        while (true)
+        {
+
+            // クリック検知で待機終了
+            bool isClicked = Input.GetMouseButtonDown(0) ||
+                            (Input.touchCount > 0 && Input.GetTouch(0).phase == UnityEngine.TouchPhase.Began);
+
+            if (isClicked)
+            {
+                break;
+            }
+
+            // 放置時間の計測
+            idleTimer += Time.unscaledDeltaTime;
+
+            if (!isGuidanceShown && idleTimer >= idleThreshold)
+            {
+                isGuidanceShown = true;
+                GuidanceTextUI.Instance.Show("画面タッチで次に進みます。");
+            }
+
+            await UniTask.Yield(PlayerLoopTiming.Update);
+        }
+
+        // クリックされたらガイダンスを確実に非表示にする
+        if (isGuidanceShown)
+        {
+            GuidanceTextUI.Instance.Hide();
+        }
+
+        // 1フレーム待つ
+        await UniTask.Yield(PlayerLoopTiming.Update);
     }
 
 
