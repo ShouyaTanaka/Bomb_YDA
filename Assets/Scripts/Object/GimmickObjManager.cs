@@ -16,6 +16,7 @@ public class GimmickObjManager : MonoBehaviour
 
     [Header("Flower")]
     [SerializeField] private GameObject[] flowers;
+    [SerializeField] private GameObject flowerClearObject;
     private bool[] flowerStates;
     private bool isFlowerClear = false;
     private const int FlowerSwitchCount = 4;
@@ -44,6 +45,7 @@ public class GimmickObjManager : MonoBehaviour
         else Destroy(gameObject);
 
         InitializeFlowerStates();
+        if (flowerClearObject != null) flowerClearObject.SetActive(false);
     }
 
     private void OnEnable()
@@ -211,7 +213,6 @@ public class GimmickObjManager : MonoBehaviour
             {
                 tvSequenceActive = false;
                 isTVClear = true;
-                ResetTVButtonHighlights();
                 return;
             }
 
@@ -245,6 +246,22 @@ public class GimmickObjManager : MonoBehaviour
 
             var color = image.color;
             color.a = 0.35f;
+            image.color = color;
+        }
+    }
+
+    private void SetTVButtonColor(Color color)
+    {
+        if (tvButtons == null) return;
+
+        for (int i = 0; i < tvButtons.Length; i++)
+        {
+            var button = tvButtons[i];
+            if (button == null) continue;
+
+            var image = button.GetComponent<Image>();
+            if (image == null) continue;
+
             image.color = color;
         }
     }
@@ -337,6 +354,13 @@ public class GimmickObjManager : MonoBehaviour
         await UniTask.WaitUntil(() => isFlowerClear);
         await TextManager.Instance.ShowText(obj.data);
 
+        if (flowerClearObject != null)
+        {
+            flowerClearObject.SetActive(true);
+            await UniTask.WaitForSeconds(2f);
+            flowerClearObject.SetActive(false);
+        }
+
         obj.GimmickOff();
     }
 
@@ -379,7 +403,9 @@ public class GimmickObjManager : MonoBehaviour
         HighlightTVButton(tvPattern[0]);
 
         await UniTask.WaitUntil(() => isTVClear);
+        SetTVButtonColor(Color.magenta);
         await UniTask.WaitForSeconds(2f);
+        SetTVButtonColor(Color.white);
         obj.GimmickOff();
     }
 }
