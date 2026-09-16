@@ -1,4 +1,4 @@
-using BoothNetwork;
+﻿using BoothNetwork;
 using Cysharp.Threading.Tasks;
 using UniRx;
 using UniTLib.Debug;
@@ -201,6 +201,9 @@ public class GameManager : MonoBehaviour
             case GameState.Start:
                 await OnStart();
                 break;
+            case GameState.Title:
+                await OnTitle();
+                break;
             case GameState.Story01:
                 await OnStory01();
                 break;
@@ -233,6 +236,21 @@ public class GameManager : MonoBehaviour
         GimmickObjManager.Instance.StartProject();
         await FadeManager.Instance.StartProject();
         BoothNetworkService.SendReset();
+        SetGameState(GameState.Title);
+    }
+
+    private async UniTask OnTitle()
+    {
+        UTLog.Log("Title state").Tag("GameManager");
+        await SwitchBackGround.Instance.SwitchBack(BackImage.Title);
+
+        // ガイダンス文字列を点滅表示
+        GuidanceTextUI.Instance.Show("画面をタッチしてスタート");
+        // 画面タッチ/クリック待機
+        await GuidanceTextUI.Instance.WaitForTouchAsync();
+        // テキスト非表示
+        GuidanceTextUI.Instance.Hide();
+
         SetGameState(GameState.Story01);
     }
 
@@ -240,6 +258,7 @@ public class GameManager : MonoBehaviour
     {
         // -- 導入テキストの表示 -- //
         UTLog.Log("Story01 state").Tag("GameManager");
+        await SwitchBackGround.Instance.SwitchBack(BackImage.Soto);
         await TextManager.Instance.ShowText(Story01_Data);
         await SwitchBackGround.Instance.SwitchBack(BackImage.Naka);
         await TextManager.Instance.ShowText(Story02_Data);
@@ -352,7 +371,7 @@ public class GameManager : MonoBehaviour
 
     public async UniTask GameReset()
     {
-        await SwitchBackGround.Instance.SwitchBack(BackImage.Soto);
+        await SwitchBackGround.Instance.SwitchBack(BackImage.Title);
         BoothNetworkService.SendReset();
         mainState.Value = GameState.Start;
     }
@@ -373,6 +392,7 @@ public class GameManager : MonoBehaviour
 public enum GameState
 {
     Start = 0,
+    Title = 1,
     Story01 = 10,
     Act01 = 20,
     BadEnd01 = 25,

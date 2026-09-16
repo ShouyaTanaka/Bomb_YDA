@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -34,5 +34,6 @@ public enum BackImage
     Soto = 0,
     Naka = 1,
     Phone = 2,
-    Bomb = 3
+    Bomb = 3,
+    Title = 4
 }
