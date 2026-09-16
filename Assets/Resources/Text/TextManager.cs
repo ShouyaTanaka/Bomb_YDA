@@ -38,8 +38,17 @@ public class TextManager : MonoBehaviour
             nameText.text = text.Name;
             mainText.text = text.Content;
 
-            // クリック待機
-            await WaitClickAsync();
+            if (text.AutoAdvanceTime > 0f)
+            {
+                // 音声用：指定秒数を自動待機（ミリ秒換算）
+                await UniTask.Delay((int)(text.AutoAdvanceTime * 1000));
+            }
+            else
+            {
+                // クリック待機
+                await WaitClickAsync();
+            }
+
         }
 
         TextBox.SetActive(false);

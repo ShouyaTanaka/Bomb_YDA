@@ -39,6 +39,10 @@ public class GameManager : MonoBehaviour
     public SectionData GoodEnd_Data;
     public SectionData BadEnd01_Data;
     public SectionData BadEnd02_Data;
+    public SectionData Call01_Data;
+    public SectionData Call02_Data;
+    public SectionData Call03_Data;
+    public SectionData Call04_Data;
 
     enum WireColor { Red, Blue, Green, Yellow, Purple }
 
@@ -109,6 +113,9 @@ public class GameManager : MonoBehaviour
 
         isPhoneHungUp = false;
         BoothNetworkService.SendTalkMessage(messageNo);
+
+        var CallText = GetCallText(messageNo);
+        await TextManager.Instance.ShowText(CallText);
         await UniTask.WaitUntil(() => isPhoneHungUp);
         moveTimer = true;
     }
@@ -311,6 +318,7 @@ public class GameManager : MonoBehaviour
     {
         UTLog.Log("Story02 state").Tag("GameManager");
         // -- 二回目の電話 -- //
+        await SwitchBackGround.Instance.SwitchBack(BackImage.Phone);
         await WaitForPhonePickup(2);
         SetGameState(GameState.Act02);
     }
@@ -355,7 +363,9 @@ public class GameManager : MonoBehaviour
     {
         UTLog.Log("BadEnd01 state").Tag("GameManager");
         BoothNetworkService.SendGameFail();
+        await SwitchBackGround.Instance.SwitchBack(BackImage.Bomb);
         await TextManager.Instance.ShowText(BadEnd01_Data);
+        await SwitchBackGround.Instance.SwitchBack(BackImage.Phone);
         await WaitForPhonePickup(3);
         await GameReset();
     }
@@ -364,7 +374,9 @@ public class GameManager : MonoBehaviour
     {
         UTLog.Log("BadEnd02 state").Tag("GameManager");
         BoothNetworkService.SendGameFail();
+        await SwitchBackGround.Instance.SwitchBack(BackImage.Bomb);
         await TextManager.Instance.ShowText(BadEnd02_Data);
+        await SwitchBackGround.Instance.SwitchBack(BackImage.Phone);
         await WaitForPhonePickup(4);
         await GameReset();
     }
@@ -386,6 +398,24 @@ public class GameManager : MonoBehaviour
     public GameState GetGameState()
     {
         return mainState.Value;
+    }
+
+    // 電話メッセージ取得
+    public SectionData GetCallText(int messageNo) 
+    {
+        switch (messageNo)
+        {
+            case 1:
+                return Call01_Data;
+            case 2:
+                return Call02_Data;
+            case 3:
+                return Call03_Data;
+            case 4:
+                return Call04_Data;
+        }
+
+        return null;
     }
 }
 
