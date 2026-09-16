@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dea35c25c10d1f447b381dabf46ac247, type: 3}
+  m_Name: Call02
+  m_EditorClassIdentifier: 
+  texts:
+  - Name: "\u8B0E\u306E\u7537"
+    Content: "\u307B\u3046\u3001\u307E\u3055\u304B\u672C\u5F53\u306B\u30BF\u30A4\u30DE\u30FC\u3092\u6B62\u3081\u3066\u898B\u305B\u308B\u3068\u306F\u306A\u3002"
+    AutoAdvanceTime: 6
+  - Name: "\u8B0E\u306E\u7537"
+    Content: "\u305F\u3057\u304B\u306B\u30BF\u30A4\u30DE\u30FC\u306F\u6B62\u307E\u3063\u305F\u3002...\u304C\u3001\u7206\u5F3E\u306F\u307E\u3060\u6B62\u307E\u3063\u3066\u3044\u306A\u3044\u3002"
+    AutoAdvanceTime: 6
+  - Name: "\u8B0E\u306E\u7537"
+    Content: "\u6B8B\u308A\u306E\u7DDA\u306F\u4E8C\u672C\u3002\u3055\u3041\u3001\u3053\u308C\u304C\u6B63\u771F\u6B63\u9298\u6700\u5F8C\u306E\u8B0E\u3060\u3002"
+    AutoAdvanceTime: 8
+  - Name: "\u8B0E\u306E\u7537"
+    Content: "\u300E\u5CA9\u5D0E\u5B66\u5712\u3092\u5B88\u3063\u3066\u898B\u305B\u308D\u300F"
+    AutoAdvanceTime: 4
+  - Name: "\u8B0E\u306E\u7537"
+    Content: "\u30D2\u30F3\u30C8\u306F\u300E\u5CA9\u5D0E\u5B66\u5712\u306E\u8272\u300F\u3060"
+    AutoAdvanceTime: 4
