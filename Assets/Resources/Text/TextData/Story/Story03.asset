@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: dea35c25c10d1f447b381dabf46ac247, type: 3}
   m_Name: Story03
-  m_EditorClassIdentifier: Assembly-CSharp::SectionData
+  m_EditorClassIdentifier: 
   texts:
   - Name: 
     Content: "\u6559\u5BA4\u306E\u4E2D\u592E\u306B\u7F6E\u304B\u308C\u3066\u3044\u305F\u306E\u306F\u3001\u898B\u6163\u308C\u306A\u3044\u7206\u5F3E\u3068\u3001\u3044\u304F\u3064\u3082\u306E\u88C5\u7F6E\u3002"

@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using System;
 using System.IO;
 using System.Net.WebSockets;
@@ -18,21 +18,21 @@ namespace BoothNetwork
         private CancellationTokenSource cts;
 
         // ==========================================
-        // ���C�����i�Q�[���{�́j���󂯎���M�C�x���g
+        // メイン側（ゲーム本体）が受け取る受信イベント
         // ==========================================
         public static event Action OnConnected;
         public static event Action OnDisconnected;
 
-        // ���d�b
+        // 黒電話
         public static event Action OnPickUpPhone;
         public static event Action OnHangUpPhone;
 
-        // ���e�e�M�~�b�N
+        // 爆弾各ギミック
         public static event Action<string, string> OnClockRotated;          // hour, minutes
         public static event Action<int, bool> OnToggleSwitchChanged;        // no (1-4), isOn
         public static event Action<int, bool> OnPushButtonChanged;          // no (1-3), isPressed
 
-        // �f�o�C�X����������
+        // デバイス側判定結果
         public static event Action OnBombClear;
         public static event Action OnBombMiss;
         public static event Action OnHalfClear;
@@ -66,16 +66,16 @@ namespace BoothNetwork
             {
                 webSocket = new ClientWebSocket();
 
-                UTLog.Log($"[BoothNetwork] �ڑ��J�n: {url}");
+                UTLog.Log($"[BoothNetwork] 接続開始: {url}");
                 await webSocket.ConnectAsync(new Uri(url), cts.Token);
-                UTLog.Log($"�T�[�o�[�ɐڑ����܂���: {url}").Tag("BoothNetwork");
+                UTLog.Log($"サーバーに接続しました: {url}").Tag("BoothNetwork");
 
                 OnConnected?.Invoke();
                 ReceiveLoopAsync(cts.Token).Forget();
             }
             catch (Exception ex)
             {
-                UTLog.Error($"�ڑ��G���[: {ex.Message}").Tag("BoothNetwork");
+                UTLog.Error($"接続エラー: {ex.Message}").Tag("BoothNetwork");
             }
         }
 
@@ -103,7 +103,7 @@ namespace BoothNetwork
                         }
 
                         string json = Encoding.UTF8.GetString(ms.ToArray());
-                        // ���C���X���b�h�Ńp�[�X & �C�x���g����
+                        // メインスレッドでパース & イベント発火
                         await UniTask.SwitchToMainThread();
                         DispatchMessage(json);
                     }
@@ -112,7 +112,7 @@ namespace BoothNetwork
             catch (OperationCanceledException) { }
             catch (Exception ex)
             {
-                UTLog.Error($"[BoothNetwork] ��M���[�v��O: {ex.Message}").Tag("BoothNetwork");
+                UTLog.Error($"[BoothNetwork] 受信ループ例外: {ex.Message}").Tag("BoothNetwork");
             }
             finally
             {
@@ -122,10 +122,8 @@ namespace BoothNetwork
 
         private void DispatchMessage(string json)
         {
-
-            // ��M������JSON���R���\�[���ɏo��
-            UTLog.Log($"<color=#00ffff>[BoothNetwork ��M]</color> {json}").Tag("BoothNetwork");
-            //Debug.Log($"<color=#00ffff>[BoothNetwork ��M]</color> {json}");
+            // 受信した生JSONをコンソールに出力
+            UTLog.Log($"<color=#00ffff>[BoothNetwork 受信]</color> {json}").Tag("BoothNetwork");
 
             ReceiveHeader header = JsonUtility.FromJson<ReceiveHeader>(json);
             if (header == null) return;
@@ -166,7 +164,7 @@ namespace BoothNetwork
                 return;
             }
 
-            // 2. �f�o�C�X���`��: pushButton
+            // 2. デバイス直形式: pushButton
             if (header.device == "pushButton")
             {
                 var msg = JsonUtility.FromJson<PushButtonMessage>(json);
@@ -178,7 +176,7 @@ namespace BoothNetwork
                 return;
             }
 
-            // 3. �ʏ�R�}���h�`�� (command ����)
+            // 3. 通常コマンド形式 (command 判定)
             switch (header.command)
             {
                 case "PickUpPhone":
@@ -212,12 +210,11 @@ namespace BoothNetwork
                 case "Reset":
                     OnReset?.Invoke();
                     break;
-
             }
         }
 
         // ==========================================
-        // ���C�����i�Q�[���{�́j����Ăяo�����M���\�b�h�Q
+        // メイン側（ゲーム本体）から呼び出す送信メソッド群
         // ==========================================
 
         public static void SendStart()
@@ -266,15 +263,14 @@ namespace BoothNetwork
         {
             if (instance == null || instance.webSocket == null || instance.webSocket.State != WebSocketState.Open)
             {
-                UTLog.Warning("���ڑ��̂��ߑ��M�ł��܂���ł����B").Tag("BoothNetwork");
+                UTLog.Warning("未接続のため送信できませんでした。").Tag("BoothNetwork");
                 return;
             }
 
             string json = JsonUtility.ToJson(payload);
 
-            // ���MJSON���R���\�[���փ��O�o��
-            UTLog.Log($"<color=#ffff00>[BoothNetwork ���M]</color> {json}").Tag("BoothNetwork");
-            //Debug.Log($"<color=#ffff00>[BoothNetwork ���M]</color> {json}");
+            // 送信JSONをコンソールへログ出力
+            UTLog.Log($"<color=#ffff00>[BoothNetwork 送信]</color> {json}").Tag("BoothNetwork");
 
             byte[] bytes = Encoding.UTF8.GetBytes(json);
             instance.webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, CancellationToken.None).AsUniTask().Forget();
