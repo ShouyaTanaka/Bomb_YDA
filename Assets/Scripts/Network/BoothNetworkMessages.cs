@@ -81,21 +81,6 @@ namespace BoothNetwork
     }
 
     /// <summary>
-    /// 配線切断パラメータ (WireCut: 1〜5)
-    /// </summary>
-    [Serializable]
-    public class WireParam
-    {
-        public int no;
-    }
-
-    [Serializable]
-    public class WireMessage
-    {
-        public WireParam parameter;
-    }
-
-    /// <summary>
     /// トグルスイッチ (相手仕様: device="toggleSwitch", status="on"|"off")
     /// </summary>
     [Serializable]

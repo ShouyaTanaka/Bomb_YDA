@@ -31,11 +31,14 @@ namespace BoothNetwork
         public static event Action<string, string> OnClockRotated;          // hour, minutes
         public static event Action<int, bool> OnToggleSwitchChanged;        // no (1-4), isOn
         public static event Action<int, bool> OnPushButtonChanged;          // no (1-3), isPressed
-        public static event Action<int> OnWireCut;                          // no (1-5)
 
         // �f�o�C�X����������
         public static event Action OnBombClear;
         public static event Action OnBombMiss;
+        public static event Action OnHalfClear;
+        public static event Action OnWireClear;
+        public static event Action OnWireFail;
+        public static event Action OnReset;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void AutoInitialize()
@@ -191,19 +194,25 @@ namespace BoothNetwork
                         OnClockRotated?.Invoke(clockMsg.parameter.hour, clockMsg.parameter.minutes);
                     }
                     break;
-                case "WireCut":
-                    var wireMsg = JsonUtility.FromJson<WireMessage>(json);
-                    if (wireMsg?.parameter != null)
-                    {
-                        OnWireCut?.Invoke(wireMsg.parameter.no);
-                    }
-                    break;
                 case "BombClear":
                     OnBombClear?.Invoke();
                     break;
                 case "BombMiss":
                     OnBombMiss?.Invoke();
                     break;
+                case "WireHalfClear":
+                    OnHalfClear?.Invoke();
+                    break;
+                case "WireClear":
+                    OnWireClear?.Invoke();
+                    break;
+                case "WireFail":
+                    OnWireFail?.Invoke();
+                    break;
+                case "Reset":
+                    OnReset?.Invoke();
+                    break;
+
             }
         }
 
@@ -214,6 +223,11 @@ namespace BoothNetwork
         public static void SendStart()
         {
             SendJson(new SimpleCommandMessage("Bomb", "Start"));
+        }
+
+        public static void SendStartWire()
+        {
+            SendJson(new SimpleCommandMessage("Wire", "StartWire"));
         }
 
         public static void SendUpdateTimer(int seconds, bool beep = true)
