@@ -1471,7 +1471,7 @@ MonoBehaviour:
   Story03_Data: {fileID: 11400000, guid: c896e2da226f52c44b9c2a68300b9eef, type: 2}
   Story04_Data: {fileID: 11400000, guid: d99a6439d517c75468dc848861cb5b7d, type: 2}
   Story06_Data: {fileID: 11400000, guid: 57deda1d5bb304a40ac544aad96b8274, type: 2}
-  Story07_Data: {fileID: 0}
+  Story07_Data: {fileID: 11400000, guid: 49828c47f810a0348887fac421e78876, type: 2}
   GoodEnd_Data: {fileID: 11400000, guid: e254a792767b3b8408a4af2f28c72a11, type: 2}
   BadEnd01_Data: {fileID: 11400000, guid: edd437132729de94c99509f57803e6a5, type: 2}
   BadEnd02_Data: {fileID: 11400000, guid: 81f3c2434db1a0a48b6c6c81e0c4a75d, type: 2}
