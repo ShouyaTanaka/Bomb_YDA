@@ -293,7 +293,7 @@ public class GimmickObjManager : MonoBehaviour
             case HintID.Flower: await FlowerGimmick(); testBool = true; break;
             case HintID.Clock: await ClockGimmick(); break;
             case HintID.TV: await TVGimmick(); break;
-            case HintID.Schedule: break;
+            case HintID.Schedule: await UniTask.WaitForSeconds(2); break;
             default: UTLog.Error("不正なObjIDが指定されました").Tag("HintManager"); break;
         }
         isCouplet = true;
