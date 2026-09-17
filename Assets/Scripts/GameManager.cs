@@ -111,16 +111,21 @@ public class GameManager : MonoBehaviour
     private async UniTask WaitForPhonePickup(int messageNo)
     {
         if (moveTimer) moveTimer = false;
-        isPhonePickedUp = false;
+        isPhonePickedUp = false;// ガイダンス文字列を点滅表示
+        GuidanceTextUI.Instance.Show("電話に出てください。");
         BoothNetworkService.SendRingTheBell();
         await UniTask.WaitUntil(() => isPhonePickedUp);
+        GuidanceTextUI.Instance.Hide();
 
         isPhoneHungUp = false;
         BoothNetworkService.SendTalkMessage(messageNo);
 
         var CallText = GetCallText(messageNo);
         await TextManager.Instance.ShowText(CallText);
+        // ガイダンス文字列を点滅表示
+        GuidanceTextUI.Instance.Show("受話器を置いてください");
         await UniTask.WaitUntil(() => isPhoneHungUp);
+        GuidanceTextUI.Instance.Hide();
         moveTimer = true;
     }
 
@@ -332,6 +337,7 @@ public class GameManager : MonoBehaviour
     private async UniTask OnAct02()
     {
         UTLog.Log("Act02 state").Tag("GameManager");
+        await SwitchBackGround.Instance.SwitchBack(BackImage.Bomb);
         BoothNetworkService.SendStartWire();
         await TextManager.Instance.ShowText(Story07_Data);
         UTLog.Log("Act02 ギミック ").Tag("Act02");
@@ -361,6 +367,7 @@ public class GameManager : MonoBehaviour
     private async UniTask OnGoodEnd()
     {
         UTLog.Log("GoodEnd state").Tag("GameManager");
+        await SwitchBackGround.Instance.SwitchBack(BackImage.Soto);
         await TextManager.Instance.ShowText(GoodEnd_Data);
         await GameReset();
     }
