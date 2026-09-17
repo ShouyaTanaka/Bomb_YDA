@@ -61,6 +61,10 @@ public class GameManager : MonoBehaviour
 
     private bool moveTimer = false;
 
+
+    [Header("Act")]
+    public SectionData act_start;
+
     void Awake()
     {
         // シングルトン初期化
@@ -285,6 +289,7 @@ public class GameManager : MonoBehaviour
     {
         UTLog.Log("Act01 state").Tag("GameManager");
         UTLog.Log("Act01 ギミック 開始").Tag("Act01");
+        await TextManager.Instance.ShowText(act_start);
 
         isHalfClearReceived = false;
         BoothNetworkService.SendStart();
@@ -302,6 +307,7 @@ public class GameManager : MonoBehaviour
         await UniTask.WaitUntil(() => isHalfClearReceived || mainState.Value != GameState.Act01);
         if (mainState.Value != GameState.Act01)
         {
+            GimmickObjManager.Instance.CloseAllGimmicks();
             return;
         }
 
@@ -401,7 +407,7 @@ public class GameManager : MonoBehaviour
     }
 
     // 電話メッセージ取得
-    public SectionData GetCallText(int messageNo) 
+    public SectionData GetCallText(int messageNo)
     {
         switch (messageNo)
         {

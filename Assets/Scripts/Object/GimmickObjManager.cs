@@ -25,12 +25,19 @@ public class GimmickObjManager : MonoBehaviour
     public GameObject clockLong;
     public GameObject clockShote;
     [SerializeField] private RectTransform clockCenter;
-    [SerializeField] private float targetHour = 3f;
-    [SerializeField] private float targetMinute = 15f;
+    [SerializeField] private float targetHour = 10f;
+    [SerializeField] private float targetMinute = 30f;
     [SerializeField] private float clockTolerance = 5f;
     private bool isClockClear = false;
+    private bool isClockSolved = false;
     private float currentHourAngle = 0f;
     private float currentMinuteAngle = 0f;
+
+    [Header("Schedule")]
+    [SerializeField] private Image scheduleImage;
+    [SerializeField] private Sprite scheduleDefaultSprite;
+    [SerializeField] private Sprite scheduleClearSprite;
+
     [Header("TV")]
     [SerializeField] private GameObject[] tvButtons;
     private readonly int[] tvPattern = { 1, 2, 3, 3, 2, 1, 1, 2, 1, 3, 1, 2, 3 };
@@ -45,7 +52,7 @@ public class GimmickObjManager : MonoBehaviour
         else Destroy(gameObject);
 
         InitializeFlowerStates();
-        if (flowerClearObject != null) flowerClearObject.SetActive(false);
+        ResetFlowerClearObject();
     }
 
     private void OnEnable()
@@ -67,6 +74,11 @@ public class GimmickObjManager : MonoBehaviour
         int flowerCount = flowers == null ? 0 : Mathf.Min(flowers.Length, FlowerSwitchCount);
         flowerStates = new bool[flowerCount];
         isFlowerClear = false;
+    }
+
+    private void ResetFlowerClearObject()
+    {
+        if (flowerClearObject != null) flowerClearObject.SetActive(false);
     }
 
     private void HandleToggleSwitchChanged(int no, bool isOn)
@@ -181,14 +193,27 @@ public class GimmickObjManager : MonoBehaviour
     {
         ObjHide();
         InitializeFlowerStates();
+        ResetFlowerClearObject();
+        isClockSolved = false;
+        ResetScheduleImage();
         InitializeClockState();
+    }
+
+    private void ResetScheduleImage()
+    {
+        if (scheduleImage != null) scheduleImage.sprite = scheduleDefaultSprite;
+    }
+
+    private void SetScheduleClearImage()
+    {
+        if (scheduleImage != null) scheduleImage.sprite = scheduleClearSprite;
     }
 
     private void InitializeClockState()
     {
         isClockClear = false;
-        currentHourAngle = GetHourAngle(targetHour);
-        currentMinuteAngle = GetMinuteAngle(targetMinute);
+        currentHourAngle = GetHourAngle(Random.Range(0f, 12f));
+        currentMinuteAngle = GetMinuteAngle(Random.Range(0f, 60f));
 
         SetupClockHand(clockLong);
         SetupClockHand(clockShote);
@@ -310,7 +335,12 @@ public class GimmickObjManager : MonoBehaviour
             case HintID.Flower: await FlowerGimmick(); testBool = true; break;
             case HintID.Clock: await ClockGimmick(); break;
             case HintID.TV: await TVGimmick(); break;
-            case HintID.Schedule: await UniTask.WaitForSeconds(2); break;
+            case HintID.Schedule:
+                Vector3 defaultScale = rtf.localScale;
+                rtf.localScale = defaultScale * 4f;
+                await UniTask.WaitForSeconds(2);
+                rtf.localScale = defaultScale;
+                break;
             default: UTLog.Error("不正なObjIDが指定されました").Tag("HintManager"); break;
         }
         isCouplet = true;
@@ -331,6 +361,16 @@ public class GimmickObjManager : MonoBehaviour
     {
         foreach (var item in Act_01) { item.HideObject(); }
     }
+
+    public void CloseAllGimmicks()
+    {
+        foreach (var item in Act_01)
+        {
+            if (item == null) continue;
+            item.GimmickOff();
+        }
+    }
+
     public void ObjActive()
     {
         foreach (var item in Act_01) { item.ActiveObject(); }
@@ -352,12 +392,11 @@ public class GimmickObjManager : MonoBehaviour
         //---------------------
 
         await UniTask.WaitUntil(() => isFlowerClear);
-        await TextManager.Instance.ShowText(obj.data);
 
         if (flowerClearObject != null)
         {
             flowerClearObject.SetActive(true);
-            await UniTask.WaitForSeconds(2f);
+            await TextManager.Instance.ShowText(obj.data);
             flowerClearObject.SetActive(false);
         }
 
@@ -374,11 +413,19 @@ public class GimmickObjManager : MonoBehaviour
         // 二秒まつ
         //---------------------
 
-        InitializeClockState();
+        if (isClockSolved)
+        {
+            await UniTask.WaitForSeconds(2f);
+            obj.GimmickOff();
+            return;
+        }
+
         isClockClear = false;
 
         await UniTask.WaitUntil(() => isClockClear);
-        await UniTask.WaitForSeconds(2f);
+        isClockSolved = true;
+        SetScheduleClearImage();
+        await TextManager.Instance.ShowText(obj.data);
         obj.GimmickOff();
 
     }
@@ -404,7 +451,7 @@ public class GimmickObjManager : MonoBehaviour
 
         await UniTask.WaitUntil(() => isTVClear);
         SetTVButtonColor(Color.magenta);
-        await UniTask.WaitForSeconds(2f);
+        await TextManager.Instance.ShowText(obj.data);
         SetTVButtonColor(Color.white);
         obj.GimmickOff();
     }
