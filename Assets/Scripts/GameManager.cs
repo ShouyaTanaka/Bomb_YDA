@@ -72,6 +72,10 @@ public class GameManager : MonoBehaviour
     [Header("Act")]
     public SectionData act_start;
 
+    [Header("Mission Guide Positions")]
+    [SerializeField] private Vector2 act01GuidePosition = new Vector2(0f, -380f);
+    [SerializeField] private Vector2 act02GuidePosition = new Vector2(0f, -380f);
+
     void Awake()
     {
         // シングルトン初期化
@@ -316,6 +320,8 @@ public class GameManager : MonoBehaviour
 
         GimmickObjManager.Instance.ObjActive();
 
+        MissionGuideUI.Instance.Show(MissionGuideUI.TextAct01, act01GuidePosition);
+
         await UniTask.WaitUntil(() => isHalfClearReceived || mainState.Value != GameState.Act01);
         if (mainState.Value != GameState.Act01)
         {
@@ -324,6 +330,8 @@ public class GameManager : MonoBehaviour
         }
 
         GimmickObjManager.Instance.ObjHide();
+
+        MissionGuideUI.Instance.Hide();
 
         // -- 成功 -- //
         UTLog.Log("Act01 ギミック 成功分岐").Tag("Act01");
@@ -349,6 +357,8 @@ public class GameManager : MonoBehaviour
         await TextManager.Instance.ShowText(Story07_Data);
         UTLog.Log("Act02 ギミック ").Tag("Act02");
 
+        MissionGuideUI.Instance.Show(MissionGuideUI.TextAct02, act02GuidePosition);
+
         // 最終判定はマイコン側から送られてくる BombClear / BombMiss によって決める
         isAct2ResultReceived = false;
         act2FinalResult = false;
@@ -357,6 +367,8 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
+
+        MissionGuideUI.Instance.Hide();
 
         if (act2FinalResult)
         {
@@ -404,6 +416,7 @@ public class GameManager : MonoBehaviour
     public async UniTask GameReset()
     {
         GimmickObjManager.Instance.ForceResetAll();
+        MissionGuideUI.Instance.Hide();
 
         await SwitchBackGround.Instance.SwitchBack(BackImage.Title);
         BoothNetworkService.SendReset();

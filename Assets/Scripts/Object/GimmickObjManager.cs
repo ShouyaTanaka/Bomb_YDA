@@ -325,11 +325,14 @@ public class GimmickObjManager : MonoBehaviour
         // 選択アニメーション
 
         ObjHide();
+        MissionGuideUI.Instance.Hide();
 
         await ObjSwitch(hint, data, rtf);
 
         ObjHide();
         ObjActive();
+
+        MissionGuideUI.Instance.Show();
 
         isButton = false;
     }
@@ -399,6 +402,8 @@ public class GimmickObjManager : MonoBehaviour
 
         // アイコン群を非表示
         ObjHide();
+
+        MissionGuideUI.Instance.Hide();
     }
 
     public void CloseAllGimmicks()
