@@ -394,6 +394,9 @@ public class GameManager : MonoBehaviour
     private async UniTask OnBadEnd01()
     {
         UTLog.Log("BadEnd01 state").Tag("GameManager");
+
+        MissionGuideUI.Instance.Hide();
+
         BoothNetworkService.SendGameFail();
         await SwitchBackGround.Instance.SwitchBack(BackImage.Bomb);
         await TextManager.Instance.ShowText(BadEnd01_Data);
@@ -405,6 +408,9 @@ public class GameManager : MonoBehaviour
     private async UniTask OnBadEnd02()
     {
         UTLog.Log("BadEnd02 state").Tag("GameManager");
+
+        MissionGuideUI.Instance.Hide();
+
         BoothNetworkService.SendGameFail();
         await SwitchBackGround.Instance.SwitchBack(BackImage.Bomb);
         await TextManager.Instance.ShowText(BadEnd02_Data);
