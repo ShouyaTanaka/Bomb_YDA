@@ -30,6 +30,14 @@ public class GameManager : MonoBehaviour
 
     public static GameManager Instance { get; private set; }
 
+    [Header("Debug Settings")]
+    [SerializeField] private bool isDebugMode = false;
+    public bool IsDebugMode => isDebugMode;
+
+    [Header("Game Settings")]
+    [SerializeField] private int timeLimitSeconds = 180; // ここで秒数を一括設定
+
+    [Header("Scene")]
     public SectionData Story01_Data;
     public SectionData Story02_Data;
     public SectionData Story03_Data;
@@ -60,7 +68,6 @@ public class GameManager : MonoBehaviour
     private bool isHalfClearReceived = false;
 
     private bool moveTimer = false;
-
 
     [Header("Act")]
     public SectionData act_start;
@@ -182,7 +189,7 @@ public class GameManager : MonoBehaviour
 
     private async UniTask TimerUpdate()
     {
-        int timer = 180;
+        int timer = timeLimitSeconds;
         while (timer >= 0 && (mainState.Value == GameState.Act01 || mainState.Value == GameState.Story02 || mainState.Value == GameState.Act02))
         {
             if (!moveTimer)

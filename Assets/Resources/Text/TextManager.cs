@@ -40,8 +40,20 @@ public class TextManager : MonoBehaviour
 
             if (text.AutoAdvanceTime > 0f)
             {
-                // 音声用：指定秒数を自動待機（ミリ秒換算）
-                await UniTask.Delay((int)(text.AutoAdvanceTime * 1000));
+                // デバッグモード判定
+                if (GameManager.Instance != null && GameManager.Instance.IsDebugMode)
+                {
+                    await UniTask.WhenAny(
+                        // デバッグ時：指定秒数を待つか、クリックされたら即座に次へ
+                        UniTask.Delay((int)(text.AutoAdvanceTime * 1000)),
+                        WaitClickAsync()
+                    );
+                } 
+                else
+                {
+                    // 音声用：指定秒数を自動待機（ミリ秒換算）
+                    await UniTask.Delay((int)(text.AutoAdvanceTime * 1000));
+                }   
             }
             else
             {
