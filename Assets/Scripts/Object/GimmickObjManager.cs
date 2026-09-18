@@ -1,4 +1,4 @@
-using BoothNetwork;
+﻿using BoothNetwork;
 using Cysharp.Threading.Tasks;
 using UniTLib.Debug;
 using UnityEngine;
@@ -13,6 +13,10 @@ public class GimmickObjManager : MonoBehaviour
     bool isButton = false;
     public bool testBool = false;
     private bool isCouplet = false;
+
+    private RectTransform currentOperatingRtf = null;
+    private Vector2 currentDefaultPosition;
+    private Vector3 currentDefaultScale;
 
     [Header("Flower")]
     [SerializeField] private GameObject[] flowers;
@@ -191,7 +195,12 @@ public class GimmickObjManager : MonoBehaviour
 
     public void StartProject()
     {
+        CloseAllGimmicks();
+
         ObjHide();
+
+        isButton = false;
+        isCouplet = false;
         InitializeFlowerStates();
         ResetFlowerClearObject();
         isClockSolved = false;
@@ -348,18 +357,48 @@ public class GimmickObjManager : MonoBehaviour
 
     public async UniTask CenterUI(RectTransform rtf)
     {
-        Vector2 defaultPosition = rtf.anchoredPosition;
+        if (rtf == null) return;
+
+        currentOperatingRtf = rtf;
+        currentDefaultPosition = rtf.anchoredPosition;
+        currentDefaultScale = rtf.localScale;
 
         rtf.anchoredPosition = new Vector2(0, 0);
 
         await UniTask.WaitUntil(() => isCouplet);
 
-        rtf.anchoredPosition = defaultPosition;
+        if(rtf != null)
+        {
+            rtf.anchoredPosition = currentDefaultPosition;
+            rtf.localScale = currentDefaultScale;
+        }
+
+        currentOperatingRtf = null;
     }
 
     public void ObjHide()
     {
         foreach (var item in Act_01) { item.HideObject(); }
+    }
+
+    public void ForceResetAll()
+    {
+        // 拡大中のPanelがあればリセット
+        if (currentOperatingRtf != null)
+        {
+            currentOperatingRtf.anchoredPosition = currentDefaultPosition;
+            currentOperatingRtf.localScale = currentDefaultScale;
+            currentOperatingRtf = null;
+        }
+
+        isCouplet = true;
+        isButton = false;
+
+        // 全ギミック詳細UIを閉じる
+        CloseAllGimmicks();
+
+        // アイコン群を非表示
+        ObjHide();
     }
 
     public void CloseAllGimmicks()

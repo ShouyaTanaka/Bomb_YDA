@@ -312,7 +312,7 @@ public class GameManager : MonoBehaviour
         await UniTask.WaitUntil(() => isHalfClearReceived || mainState.Value != GameState.Act01);
         if (mainState.Value != GameState.Act01)
         {
-            GimmickObjManager.Instance.CloseAllGimmicks();
+            GimmickObjManager.Instance.ForceResetAll();
             return;
         }
 
@@ -396,6 +396,8 @@ public class GameManager : MonoBehaviour
 
     public async UniTask GameReset()
     {
+        GimmickObjManager.Instance.ForceResetAll();
+
         await SwitchBackGround.Instance.SwitchBack(BackImage.Title);
         BoothNetworkService.SendReset();
         mainState.Value = GameState.Start;
